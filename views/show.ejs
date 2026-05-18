@@ -1,0 +1,17 @@
+<h1>Chat Details</h1>
+
+<p><b>From:</b> <%= chat.from %></p>
+<p><b>To:</b> <%= chat.to %></p>
+<p><b>Message:</b> <%= chat.msg %></p>
+
+<p>
+    <b>Time:</b>
+    <%= chat.created_at.toString().split(" ")[4] %>
+</p>
+
+<p>
+    <b>Date:</b>
+    <%= chat.created_at.toString().split(" ").slice(0, 4).join("-") %>
+</p>
+
+<a href="/chats">Back</a>

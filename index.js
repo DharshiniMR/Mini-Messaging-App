@@ -24,12 +24,31 @@ async function main(){
 
 }
 
+function asyncWrap(fn) {
+    return function (req, res, next) {
+        fn(req, res, next).catch(next);
+    };
+}
+
 //Index route
 app.get('/chats', asyncWrap(async(req,res,next)=>{
     let chats=await Chat.find();
     res.render('index.ejs',{chats});  
    
 }))
+
+//show route
+app.get('/chats/:id', asyncWrap(async (req, res) => {
+    let { id } = req.params;
+
+    let chat = await Chat.findById(id);
+
+    if (!chat) {
+        return res.status(404).send("Chat not found");
+    }
+
+    res.render("show.ejs", { chat });
+}));
 
 //NEW ROUTE
 app.get("/chats/new",(req,res)=>{
@@ -87,7 +106,10 @@ app.delete("/chats/:id",asyncWrap( async(req,res,next)=>{
     
     
 }))
-
+app.use((err,req,res,next)=>{
+    console.log(err.name);
+    next(err);
+})
 app.use((err,req,res,next)=>{
     let{status=500,message}=err;
     res.status(status).send(message);
