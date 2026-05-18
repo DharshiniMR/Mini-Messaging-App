@@ -25,15 +25,11 @@ async function main(){
 }
 
 //Index route
-app.get('/chats',async(req,res,next)=>{
-    try{
-        let chats=await Chat.find();
-         res.render('index.ejs',{chats});  
-    }catch(err){
-        next(err);
-    }
-     
-})
+app.get('/chats', asyncWrap(async(req,res,next)=>{
+    let chats=await Chat.find();
+    res.render('index.ejs',{chats});  
+   
+}))
 
 //NEW ROUTE
 app.get("/chats/new",(req,res)=>{
@@ -41,8 +37,8 @@ app.get("/chats/new",(req,res)=>{
 })
 
 //Create route
-app.post("/chats",async(req,res,next)=>{
-    try{
+app.post("/chats",asyncWrap(async(req,res,next)=>{
+
         let {from,to,msg}=req.body;
         let newChat=new Chat({
             from:from,
@@ -53,52 +49,44 @@ app.post("/chats",async(req,res,next)=>{
         await newChat.save();
         console.log("chat saved");
         res.redirect("/chats");
-    }catch(err){
-        next(err);
-    }
     
-})
+    
+}))
 
 //EDIT ROUTE
-app.get("/chats/:id/edit",async(req,res,next)=>{
-    try{
+app.get("/chats/:id/edit",asyncWrap(async(req,res,next)=>{
+
         let{id}=req.params;
         let chat=await Chat.findById(id);
         if(!chat){
             return next(new ExpressError(404,"Chat Not Found"));
         }
         res.render("edit.ejs",{chat});
-    }catch(err){
-        next(err);
-    }
     
-})
+    
+}))
 //update
-app.put("/chats/:id",async(req,res,next)=>{
-    try{
+app.put("/chats/:id",asyncWrap(async(req,res,next)=>{
+    
         let {id}=req.params;
         let {newMsg}=req.body;
         let updatedChat=await Chat.findByIdAndUpdate(id,{msg:newMsg},{runValidators:true,new:true});
         console.log(updatedChat);
         res.redirect('/chats');
-    }catch(err){
-        next(err);
-    }
     
-})
+    
+}))
 
 //delete route
-app.delete("/chats/:id",async(req,res,next)=>{
-    try{
+app.delete("/chats/:id",asyncWrap( async(req,res,next)=>{
+    
         let{id}=req.params;
         let deletedChat=await Chat.findByIdAndDelete(id);
         console.log(deletedChat);
         res.redirect("/chats");
-    }catch(err){
-        next(err);
-    }
     
-})
+    
+}))
 
 app.use((err,req,res,next)=>{
     let{status=500,message}=err;
